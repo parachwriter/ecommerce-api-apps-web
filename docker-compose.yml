@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: ecommerce-postgres
+    environment:
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: ecommerce_password
+      POSTGRES_DB: ecommerce_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  quarkus-api:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: ecommerce-api
+    ports:
+      - "8080:8080"
+    environment:
+      # Cambiamos localhost por el nombre del servicio 'postgres-db'
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres-db:5432/ecommerce_db
+      QUARKUS_DATASOURCE_USERNAME: ecommerce_user
+      QUARKUS_DATASOURCE_PASSWORD: ecommerce_password
+      # Forzamos que se mantenga activo Swagger UI en el contenedor
+      QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE: "true"
+    volumes:
+      # Inyectamos tus llaves criptográficas dentro del contenedor
+      - ./privateKey.pem:/deployments/privateKey.pem:ro
+      - ./publicKey.pem:/deployments/publicKey.pem:ro
+    depends_on:
+      - postgres-db
+
+volumes:
+  postgres_data:

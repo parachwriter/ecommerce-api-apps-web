@@ -1,0 +1,67 @@
+package ec.epn.ecommerce.controller;
+
+import ec.epn.ecommerce.dto.auth.RegisterDTO;
+import ec.epn.ecommerce.dto.user.RoleUpdateDTO;
+import ec.epn.ecommerce.dto.user.UserRequestDTO;
+import ec.epn.ecommerce.dto.user.UserResponseDTO;
+import ec.epn.ecommerce.service.UserService;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.util.List;
+
+@Path("/api/users")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+@jakarta.annotation.security.RolesAllowed("USER")
+public class UserController {
+
+    @Inject
+    UserService userService;
+
+    @POST
+    @Path("/register")
+    @PermitAll
+    public Response register(@Valid RegisterDTO dto) {
+        UserResponseDTO response = userService.registerUser(dto);
+        return Response.status(Response.Status.CREATED).entity(response).build();
+    }
+
+    @GET
+    public List<UserResponseDTO> getAll() {
+        return userService.getAllUsers();
+    }
+
+    @GET
+    @Path("/{id}")
+    public UserResponseDTO getById(@PathParam("id") Long id) {
+        return userService.getUserById(id);
+    }
+
+    @PUT
+    @Path("/{id}")
+    public UserResponseDTO update(@PathParam("id") Long id, @Valid UserRequestDTO dto) {
+        return userService.updateUser(id, dto);
+    }
+
+    @DELETE
+    @RolesAllowed("ADMIN")
+    @Path("/{id}")
+    public Response delete(@PathParam("id") Long id) {
+        userService.deleteUser(id);
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/{id}/role")
+    @jakarta.annotation.security.RolesAllowed("ADMIN")
+    public UserResponseDTO updateRole(@PathParam("id") Long id, @Valid RoleUpdateDTO dto) {
+        return userService.updateRole(id, dto);
+    }
+
+
+}

@@ -27,6 +27,7 @@ public class ReceiptController {
     }
 
     @GET
+    @RolesAllowed("ADMIN")
     public List<ReceiptResponseDTO> getAll() {
         return receiptService.getAllReceipts();
     }

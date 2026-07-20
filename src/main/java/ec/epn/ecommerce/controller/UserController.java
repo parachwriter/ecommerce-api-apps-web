@@ -12,12 +12,14 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import jakarta.inject.Inject;
+
 import java.util.List;
 
 @Path("/api/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@jakarta.annotation.security.RolesAllowed("USER")
 public class UserController {
 
     @Inject
@@ -32,25 +34,28 @@ public class UserController {
     }
 
     @GET
+    @RolesAllowed("ADMIN")
     public List<UserResponseDTO> getAll() {
         return userService.getAllUsers();
     }
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({ "USER", "ADMIN" })
     public UserResponseDTO getById(@PathParam("id") Long id) {
         return userService.getUserById(id);
     }
 
     @PUT
     @Path("/{id}")
+    @RolesAllowed({ "USER", "ADMIN" })
     public UserResponseDTO update(@PathParam("id") Long id, @Valid UserRequestDTO dto) {
         return userService.updateUser(id, dto);
     }
 
     @DELETE
-    @RolesAllowed("ADMIN")
     @Path("/{id}")
+    @RolesAllowed("ADMIN")
     public Response delete(@PathParam("id") Long id) {
         userService.deleteUser(id);
         return Response.noContent().build();
@@ -58,10 +63,8 @@ public class UserController {
 
     @PUT
     @Path("/{id}/role")
-    @jakarta.annotation.security.RolesAllowed("ADMIN")
+    @RolesAllowed("ADMIN")
     public UserResponseDTO updateRole(@PathParam("id") Long id, @Valid RoleUpdateDTO dto) {
         return userService.updateRole(id, dto);
     }
-
-
 }

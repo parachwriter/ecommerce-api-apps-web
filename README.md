@@ -382,13 +382,16 @@ docker compose logs -f postgres-db
 docker compose restart quarkus-api
 
 # Detener los servicios conservando datos
-docker compose down
+docker compose down 
+
+# Detener los servicios eliminando datos
+docker compose down -v
 
 # Ejecutar las pruebas en Windows
 .\mvnw.cmd test
 
 # Compilar en Windows
-.\mvnw.cmd clean package
+.\mvnw.cmd clean package -DskipTests
 ```
 ---
 ## Integrantes
